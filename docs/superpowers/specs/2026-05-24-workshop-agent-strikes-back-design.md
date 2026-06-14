@@ -49,7 +49,7 @@ In **90 minuti hands-on**, ogni partecipante esce con un repo personale in cui h
 |---|---|
 | Durata | 90 minuti |
 | Formato | Hands-on (i partecipanti fanno, non solo guardano) |
-| Audience | Mista junior → senior |
+| Audience | Mista junior => senior |
 | Superficie primaria | GitHub Copilot in **VS Code** (con cenni a Copilot CLI e Claude Code in M4 — stesso bundle plugin, tre superfici) |
 | Lingua materiali | Italiano per testi rivolti ai partecipanti, inglese per nomi tecnici/codice/branch |
 | Ambiente | GitHub Codespaces (devcontainer pre-configurato) |
@@ -72,7 +72,7 @@ Tra 3 approcci valutati (6 moduli 1:1 / 4 moduli accoppiati / 6 moduli low-floor
 
 **Motivazione**:
 - 18 min/modulo permettono di fare davvero qualcosa, non solo "guardare e copy-paste".
-- Gli accoppiamenti raccontano una storia coerente: **istruzioni → capacità → governance → distribuzione**.
+- Gli accoppiamenti raccontano una storia coerente: **istruzioni => capacità => governance => distribuzione**.
 - Con 18 min c'è naturalmente spazio per uno "stretch goal" per i senior senza ramificare formalmente.
 
 ### Timeline 90 minuti
@@ -122,9 +122,9 @@ Ogni modulo è **autosufficiente**: cartella propria, starter propri, **cartella
 - **Anatomia di una Skill**:
   ```
   skills/<nome-skill>/
-  ├── SKILL.md          ← frontmatter YAML + corpo istruzioni
-  ├── scripts/          ← (opzionale) script/helper invocabili
-  └── resources/        ← (opzionale) template, esempi, schema
+  ├── SKILL.md          <= frontmatter YAML + corpo istruzioni
+  ├── scripts/          <= (opzionale) script/helper invocabili
+  └── resources/        <= (opzionale) template, esempi, schema
   ```
 - **Frontmatter SKILL.md** (cosa scrivere):
   ```yaml
@@ -163,7 +163,7 @@ Ogni modulo è **autosufficiente**: cartella propria, starter propri, **cartella
 - **Quando usare un subagent vs ask mode**: subagent quando il task è ben definito e isolabile (review di un file, refactor di una funzione, ricerca focalizzata, generazione di test). Ask mode quando vuoi una conversazione iterativa.
 - **Anatomia di un subagent**:
   ```
-  agents/<nome-agent>.agent.md      ← frontmatter YAML + system prompt
+  agents/<nome-agent>.agent.md      <= frontmatter YAML + system prompt
   ```
 - **Frontmatter `.agent.md`** (cosa scrivere):
   ```yaml
@@ -184,7 +184,7 @@ Ogni modulo è **autosufficiente**: cartella propria, starter propri, **cartella
 *Insieme (1')*
 - Subagent = chi fa il lavoro, con quale contesto, su quale slice di scope.
 - MCP = quali tool e quali dati ha in mano.
-- Combinazione: un subagent code-reviewer che usa Context7 per verificare API attuali → pattern componibile.
+- Combinazione: un subagent code-reviewer che usa Context7 per verificare API attuali => pattern componibile.
 
 **Scelta MCP server**: **Context7**.
 Motivo: molti MCP "famosi" (es. `github-mcp`) hanno controparte CLI (`gh`) che le rende meno didattiche — *"perché chiamare MCP se ho già `gh`?"*. Context7 invece risolve un problema **vero e non risolto altrimenti**: portare a Copilot le **docs aggiornate** delle librerie del progetto. Un MCP che ha senso davvero.
@@ -220,7 +220,7 @@ Configurare un `PreToolUse` hook che intercetta le invocazioni di Bash/Edit/Writ
 
 **Flusso**:
 1. *(2')* Aprire `.copilot/policy.yml` di partenza (con `rm -rf` già bloccato). Chiedere a Copilot: *"fai pulizia di /tmp"*. L'agente prova `rm -rf /tmp/*`, l'hook blocca, l'agente riformula con `find ... -delete`. Vedere il behaviour change.
-2. *(3')* Estendere la policy con 1-2 regole nuove (es. blocco scrittura `.env`). Provarle: *"crea un file `.env` con credenziali demo"* → blocco visibile.
+2. *(3')* Estendere la policy con 1-2 regole nuove (es. blocco scrittura `.env`). Provarle: *"crea un file `.env` con credenziali demo"* => blocco visibile.
 3. *(2')* Customizzare il messaggio di blocco. L'agente reagisce diversamente se gli spieghi *perché* è bloccato vs un secco "no".
 
 **Wrap (3')**: hook = fiducia controllata. Il punto della frase finale: *"questo `policy.yml` puoi copiarlo nel repo aziendale lunedì mattina"*.
@@ -261,7 +261,7 @@ Configurare un `PreToolUse` hook che intercetta le invocazioni di Bash/Edit/Writ
 - **Punto pedagogico**: questo è un asset tematico vendibile (*"un plugin che chiunque vorrebbe nel repo aziendale: skill compliance + reviewer + safety hook"*) — non un mix eterogeneo.
 - Si vede *come* si pubblicherebbe (`copilot plugin marketplace add <url-del-tuo-fork>`). Non si pubblica davvero per non spammare i marketplace pubblici.
 
-**Wrap (3')**: da artefatto privato → artefatto distribuibile. Plugin = unit of distribution dell'agentic dev.
+**Wrap (3')**: da artefatto privato => artefatto distribuibile. Plugin = unit of distribution dell'agentic dev.
 
 **Output portabile**: `plugins/copilot-safety-guard/` con manifest e tutti i componenti, pronto in teoria da pubblicare.
 
@@ -269,19 +269,19 @@ Configurare un `PreToolUse` hook che intercetta le invocazioni di Bash/Edit/Writ
 
 ### M5 — "Spec-Driven Development" · 12 min · presentato dal co-speaker
 
-**Pedagogia**: i 4 moduli precedenti hanno costruito **i mattoni** dell'agentic dev (istruzioni, capacità, governance, distribuzione). SDD è **il paradigma** che li unisce in un nuovo modo di lavorare: definisci una spec macchina-leggibile del comportamento desiderato → l'agente la usa come oracolo per generare, validare, mantenere il codice.
+**Pedagogia**: i 4 moduli precedenti hanno costruito **i mattoni** dell'agentic dev (istruzioni, capacità, governance, distribuzione). SDD è **il paradigma** che li unisce in un nuovo modo di lavorare: definisci una spec macchina-leggibile del comportamento desiderato => l'agente la usa come oracolo per generare, validare, mantenere il codice.
 
 **Format**: **non hands-on** — è un'intro concettuale + demo guidata dal proiettore. Il co-speaker (collega di Gerardo) prende la sala per 12 min.
 
 **Suggerimento contenuto (da rifinire col co-speaker)**
-- *(3')* **Cos'è SDD**: la spec come "fonte di verità" su cui l'agente lavora. Non più "codice → cerca di capire l'intento", ma "intento esplicito → codice e test derivati".
+- *(3')* **Cos'è SDD**: la spec come "fonte di verità" su cui l'agente lavora. Non più "codice => cerca di capire l'intento", ma "intento esplicito => codice e test derivati".
 - *(5')* **Demo proiettata**: il co-speaker mostra un mini-esempio end-to-end (es. partendo da una spec si genera codice + test + verifica conformità). Idealmente usa **gli stessi mattoni del workshop**: AGENTS.md per le regole, una skill per il flusso SDD, MCP per arricchire la spec con docs aggiornate.
-- *(3')* **Perché dopo i 4 moduli**: SDD ha senso solo se hai i mattoni. Mostrare il loop: spec → agent → review (subagent) → guardrail (hook) → distribuzione (plugin). Tutto torna.
+- *(3')* **Perché dopo i 4 moduli**: SDD ha senso solo se hai i mattoni. Mostrare il loop: spec => agent => review (subagent) => guardrail (hook) => distribuzione (plugin). Tutto torna.
 - *(1')* **Call to action**: link al materiale del co-speaker in `docs/follow-up.md` per chi vuole approfondire.
 
 **Coordinamento con il co-speaker** (da fare nei giorni prima del workshop):
 - Allineare il vocabolario (es. "skill" significhi la stessa cosa in entrambe le metà).
-- Concordare la frase di bridge che Gerardo dice in chiusura di M4 → "ora il microfono passa a [collega] per chiudere il cerchio con il paradigma SDD".
+- Concordare la frase di bridge che Gerardo dice in chiusura di M4 => "ora il microfono passa a [collega] per chiudere il cerchio con il paradigma SDD".
 - Decidere quale esempio usa il co-speaker (idealmente collegato alla Task API del workshop, per continuità — ma è una scelta del co-speaker).
 
 **Output portabile (per il partecipante)**: la **comprensione concettuale** del paradigma SDD + i link nel follow-up per approfondire. Niente artefatti hands-on in M5.
@@ -294,29 +294,29 @@ Configurare un `PreToolUse` hook che intercetta le invocazioni di Bash/Edit/Writ
 
 ```
 copilot-workshop-2026/
-├── README.md                       ← landing italiano: obiettivi, setup, Codespace button
+├── README.md                       <= landing italiano: obiettivi, setup, Codespace button
 ├── .devcontainer/
-│   ├── devcontainer.json           ← Node + .NET SDK + Python, Copilot ext, GH CLI loggata
-│   ├── post-create.sh              ← restore deps, MCP demo setup
+│   ├── devcontainer.json           <= Node + .NET SDK + Python, Copilot ext, GH CLI loggata
+│   ├── post-create.sh              <= restore deps, MCP demo setup
 │   └── mcp-servers/
-│       └── context7/               ← Context7 pre-configurato
-├── AGENTS.md                       ← root AGENTS.md di esempio (unica fonte di verità — niente copilot-instructions.md per non duplicare/confondere)
+│       └── context7/               <= Context7 pre-configurato
+├── AGENTS.md                       <= root AGENTS.md di esempio (unica fonte di verità — niente copilot-instructions.md per non duplicare/confondere)
 ├── docs/
-│   ├── 00-intro.md                 ← teoria base: agent mode, AGENTS.md, glossario rapido
-│   ├── glossario.md                ← cheat-sheet termini agentic
-│   ├── timing-conduzione.md        ← runbook speaker: cosa dire/cliccare al minuto
-│   └── follow-up.md                ← link post-workshop (Awesome Copilot, docs, Context7, repo dev-days)
+│   ├── 00-intro.md                 <= teoria base: agent mode, AGENTS.md, glossario rapido
+│   ├── glossario.md                <= cheat-sheet termini agentic
+│   ├── timing-conduzione.md        <= runbook speaker: cosa dire/cliccare al minuto
+│   └── follow-up.md                <= link post-workshop (Awesome Copilot, docs, Context7, repo dev-days)
 └── modules/
     ├── M1-istruzioni/
-    │   ├── README.md               ← teoria (5') + hands-on (10') + wrap (3')
+    │   ├── README.md               <= teoria (5') + hands-on (10') + wrap (3')
     │   ├── starters/
-    │   │   ├── dotnet/             ← Task API funzionante
-    │   │   ├── typescript/         ← Task API funzionante
-    │   │   └── python/             ← Task API funzionante
-    │   └── solution/               ← cartella con stato finale del modulo (3 sottocartelle per linguaggio)
-    ├── M2-capacita/                ← stessa struttura
-    ├── M3-governance/              ← stessa struttura
-    └── M4-distribuzione/           ← stessa struttura
+    │   │   ├── dotnet/             <= Task API funzionante
+    │   │   ├── typescript/         <= Task API funzionante
+    │   │   └── python/             <= Task API funzionante
+    │   └── solution/               <= cartella con stato finale del modulo (3 sottocartelle per linguaggio)
+    ├── M2-capacita/                <= stessa struttura
+    ├── M3-governance/              <= stessa struttura
+    └── M4-distribuzione/           <= stessa struttura
 ```
 
 ### Convenzioni
@@ -367,7 +367,7 @@ Test "ready":
 2. Click "Open in Codespace"
 3. Attendi ~2 min
 4. Verifica icona Copilot attiva
-5. Problemi → rispondi a questa mail entro [data -2gg]
+5. Problemi => rispondi a questa mail entro [data -2gg]
 ```
 
 ### Setup check in apertura (primi 5 minuti)
@@ -382,14 +382,14 @@ Test "ready":
 | Guasto | Sintomo | Plan B |
 |---|---|---|
 | Codespace non parte | Spinner / errore quota | github.dev oppure pair col vicino |
-| Copilot non si autentica | Icona spenta | Palette → "GitHub Copilot: Sign In" |
+| Copilot non si autentica | Icona spenta | Palette => "GitHub Copilot: Sign In" |
 | Limite Copilot Free raggiunto | Chat non risponde | Pair col vicino che ha Pro |
 | Agent mode assente | Solo "Ask" | Verifica versione estensione, reload window |
 | MCP server non parte | Errore in chat | la `solution/` del modulo include un fallback mock offline |
 
 ### Convenzioni rescue durante i moduli
 
-- **Cartellino verde/giallo** (post-it sul laptop): 🟢 ok / 🟡 bloccato → co-speaker arriva.
+- **Cartellino verde/giallo** (post-it sul laptop): 🟢 ok / 🟡 bloccato => co-speaker arriva.
 - **`modules/Mn/solution/`** cartella sempre disponibile: bloccato per >90s? Copia la solution e prosegui.
 - **Sync point** di 1 min a fine ogni modulo: speaker proietta `modules/Mn/solution/`, tutti si allineano.
 - **Timer dal palco**, gestito dagli speaker (no timer integrato nel repo).
@@ -468,5 +468,5 @@ Il repo è "pronto" quando:
 ## 11. Prossimi passi
 
 1. **Review utente di questo documento** (Gerardo).
-2. Modifiche eventuali → re-review.
+2. Modifiche eventuali => re-review.
 3. Una volta approvato, transizione a **writing-plans** per produrre un piano implementativo step-by-step (creazione repo, devcontainer, moduli, starter, cartelle solution, docs, dry-run).

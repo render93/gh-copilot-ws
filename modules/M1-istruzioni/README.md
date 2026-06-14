@@ -2,37 +2,39 @@
 
 > Obiettivo: capire come si descrive un repo in un file AGENTS.md e come si crea una Skill. Vedere in pratica la differenza tra "regole sempre attive" e "know-how caricato quando serve".
 
-> 🔵 **Claude Code (estensione VS Code)?** Questo modulo è identico. `AGENTS.md` è già cross-tool: al root del repo c'è `CLAUDE.md` che lo importa (`@AGENTS.md`), quindi Claude Code lavora con lo **stesso contratto**. La Skill che crei nello Step 2 vale per entrambi gli strumenti: cambia solo la cartella (`.claude/skills/` invece di `.github/skills/`). Sotto ogni passo hands-on trovi un blocco 🔵 con l'equivalente esatto.
+> 🔵 **Claude Code?** Questo modulo è identico. `AGENTS.md` è già cross-tool: al root del repo c'è `CLAUDE.md` che lo importa (`@AGENTS.md`), quindi Claude Code lavora con lo **stesso contratto**. La Skill che crei nello Step 2 vale per entrambi gli strumenti: cambia solo la cartella (`.claude/skills/` invece di `.github/skills/`). Sotto ogni passo hands-on trovi un blocco 🔵 con l'equivalente esatto.
 
 ## Teoria
 
 ### AGENTS.md
 
-`AGENTS.md` è lo standard `de facto` cross-tool (GitHub Copilot, Claude Code, e altri coding agent) per descrivere il *contratto* del repository all'agente. È un file Markdown a livello root che viene **caricato in tutte le sessioni agentic** e iniettato come parte del system prompt - perciò ogni riga ha un costo in token.
+`AGENTS.md` è lo standard `de facto` cross-tool (GitHub Copilot, Claude Code, e altri coding agent) per descrivere il *contratto* del repository all'agente. È un file Markdown che viene iniettato come parte del system prompt in tutte le sessioni.
 
 **Cosa includere**:
 - **Regole architetturali**: stack tecnologico, layering, decisioni di design che non si vogliono violare.
 - **Convenzioni di codice**: naming, validation, error handling, struttura dei test.
 - **Vincoli non negoziabili**: cose che l'agente non deve mai fare ("non modificare X", "esegui sempre Y prima di commit").
-- **Punti di ingresso**: dove cercare cosa nel repository (mappa rapida).
+- **Punti di ingresso**: dove cercare cosa nel repository.
 
 **Cosa NON includere**:
-- Documentazione esaustiva del progetto (sta nei `docs/`).
+- Documentazione esaustiva del progetto.
 - Esempi lunghi di codice (vanno in skill o in commenti del codice).
 - Storia delle decisioni o changelog (lo dice `git log`).
-- Informazioni che cambiano frequentemente (ad ogni modifica si paga la regression del prompt).
+- Informazioni che cambiano frequentemente (ad ogni modifica si paga la regression del prompt se non costantemente aggiornato).
 
-**Vincolo pratico di lunghezza**: < 200 righe è sano, hard-cap sui 500. Sopra questa soglia: il costo in token per prompt diventa percepibile, l'attenzione dell'agente si distribuisce, ed è il segnale che alcune regole vanno spostate in una Skill.
+**Vincolo pratico di lunghezza**: meno di 200 righe è consigliato, hard-cap sui 500. Sopra questa soglia: il costo in token per prompt diventa percepibile, l'attenzione dell'agente si distribuisce, ed è il segnale che alcune regole vanno spostate in una Skill.
 
 ### Skill
 
-Una Skill è una **unità di know-how componibile**, caricata dall'agente **solo quando rilevante per il task corrente**. È una cartella con questa struttura:
+Una skill è uno standard e contiene un insieme di risorse e istruzioni che forniscono al coding agent know-how procedurale su *come* fare qualcosa di specifico. La skill è caricata dall'agente solo quando necessario, in base alla sua `description`. Questo permette di mantenere il prompt leggero e focalizzato, pagando il costo in token solo quando si ha effettivamente bisogno di quel know-how.
+
+La struttura è la seguente:
 
 ```
 skills/<nome-skill>/
-├── SKILL.md          ← frontmatter YAML + corpo istruzioni
-├── scripts/          ← (opzionale) script eseguibili
-└── resources/        ← (opzionale) template, esempi, schema
+├── SKILL.md          <= frontmatter YAML + corpo istruzioni
+├── scripts/          <= (opzionale) script eseguibili
+└── resources/        <= (opzionale) template, esempi, schema
 ```
 
 Il file `SKILL.md` ha un frontmatter YAML con due campi obbligatori:
@@ -45,7 +47,7 @@ description: Use when creating a new REST endpoint in this repo. Covers validati
 ```
 
 - `name`: identificatore tecnico in kebab-case.
-- `description`: la frase con cui l'agente decide **se e quando** caricare la skill. Una buona `description` produce auto-loading affidabile; una vaga richiede di nominare esplicitamente la skill ad ogni invocazione.
+- `description`: la frase con cui l'agente decide **se e quando** caricare la skill. Una buona `description` produce auto-loading affidabile; una vaga rischia di non essere caricata quando serve o, al contrario, di essere caricata in contesti non rilevanti.
 
 ### Differenza pratica AGENTS.md vs Skill
 
@@ -69,7 +71,7 @@ In Copilot Chat (modalità **Agent**) chiedi:
 
 Osserva nella risposta dell'agente:
 - la posizione del nuovo endpoint (allineata alle convenzioni in AGENTS.md);
-- la **validazione del body** (entrambi i campi richiesti — `PUT` ha semantica *replace*, quindi tutti i campi del payload sono obbligatori);
+- la **validazione del body** (entrambi i campi richiesti - `PUT` ha semantica *replace*, quindi tutti i campi del payload sono obbligatori);
 - gli status code di risposta (`200` se il task esiste ed è aggiornato, `404` se l'id non esiste, `400` se il body è invalido);
 - il test generato accanto al codice di produzione.
 
@@ -78,7 +80,7 @@ Osserva nella risposta dell'agente:
 <details>
 <summary>🔵 <b>Claude Code — Step 1</b></summary>
 
-Identico. Apri il pannello **Claude Code** in VS Code e, in una nuova conversazione, incolla **lo stesso prompt** qui sopra. Claude Code carica `CLAUDE.md` (che importa `AGENTS.md`) all'avvio della sessione, quindi segue lo stesso contratto di repo: posizione dell'endpoint, validazione, status code, test accanto al codice. La verifica è la stessa — è `AGENTS.md` (via `CLAUDE.md`) a guidare l'agente, senza istruzioni in chat.
+Identico. Apri il pannello **Claude Code** in VS Code e, in una nuova conversazione, incolla **lo stesso prompt** presente qui sopra. Claude Code carica `CLAUDE.md` (che importa `AGENTS.md`) all'avvio della sessione, quindi segue lo stesso contratto di repo: posizione dell'endpoint, validazione, status code, test accanto al codice. La verifica è la stessa — è `AGENTS.md` (via `CLAUDE.md`) a guidare l'agente, senza istruzioni in chat.
 
 </details>
 
@@ -102,7 +104,7 @@ description: Use when creating a new REST endpoint in this repo. Covers validati
 - Python: `app/main.py` (function decorated with `@app.<verb>`)
 
 ## 2. Input validation
-- Invalid input → 400 with body `{ "error": "<short message>" }`
+- Invalid input => 400 with body `{ "error": "<short message>" }`
 - Python: pydantic.BaseModel; TS: type-narrowing; .NET: record + manual checks
 
 ## 3. Status codes
@@ -118,7 +120,7 @@ Kebab-case paths (e.g. `/tasks/by-status`). Typed path params (`{id:int}` in .NE
 Ora apri una nuova chat e chiedi all'agente, **senza nominare la skill**:
 > Nel progetto `@modules/M1-istruzioni/starters/<linguaggio>` aggiungi un endpoint `DELETE /tasks/:id` che cancella un task esistente.
 
-Nota: l'agente carica autonomamente la skill `endpoint-creator` perché la `description` del frontmatter dichiara *"Use when creating a new REST endpoint"*, e il prompt soddisfa quel trigger. Vedrai nella chat (a seconda della superficie) un riferimento esplicito tipo *"Loading skill: endpoint-creator"* oppure la skill comparirà nella context list del turno.
+Nota: l'agente carica autonomamente la skill `endpoint-creator` perché la `description` del frontmatter dichiara *"Use when creating a new REST endpoint"*, e il prompt soddisfa quel trigger. Vedrai nella chat un riferimento esplicito relativo al caricamento della skill.
 
 La skill può anche essere chiamata esplicitamente, ad esempio con:
 > Usa la skill /endpoint-creator per aggiungere un endpoint `DELETE /tasks/:id` che cancella un task esistente.
@@ -126,7 +128,7 @@ La skill può anche essere chiamata esplicitamente, ad esempio con:
 <details>
 <summary>🔵 <b>Claude Code — Step 2</b></summary>
 
-Stesso identico contenuto di `SKILL.md`, solo un'altra cartella: crea il file in **`.claude/skills/endpoint-creator/SKILL.md`** al root del workspace (Claude Code carica le skill da `.claude/skills/`). Il frontmatter (`name` + `description`) e il corpo sono **identici** a quelli mostrati sopra — copiali tal quali.
+Stesso identico contenuto di `SKILL.md`, solo un'altra cartella: crea il file in **`.claude/skills/endpoint-creator/SKILL.md`** al root del workspace (Claude Code carica le skill da `.claude/skills/`). Il frontmatter (`name` + `description`) e il corpo sono **identici** a quelli mostrati sopra — copiali tali e quali.
 
 Poi apri una nuova conversazione in Claude Code e usa **lo stesso prompt** (`DELETE /tasks/:id`) **senza nominare la skill**: Claude la auto-carica perché la `description` matcha il task. Per invocarla esplicitamente digita `/endpoint-creator` nel prompt (le skill compaiono come slash command quando digiti `/`).
 
@@ -138,15 +140,10 @@ Reference: `modules/M1-istruzioni/solution/.claude/skills/endpoint-creator/SKILL
 
 - AGENTS.md = identità del repo, regole sempre vere, paghi token sempre.
 - Skill = know-how procedurale, caricato on-demand quando il `description` matcha il task.
-- Triage: la regola serve "sempre"? → AGENTS.md. Serve "a volte"? → Skill. Costa meno e non distrae.
+- Triage: la regola serve "sempre"? => AGENTS.md. Serve "a volte"? => Skill.
 
-## Cosa ti porti a casa
+## Problemi?
 
-- Il file `AGENTS.md` al root del repo (già presente, ti guida durante il workshop).
-- Una skill funzionante in `.github/skills/endpoint-creator/` al root del workspace.
-
-Se ti blocchi: `solution/.github/skills/endpoint-creator/SKILL.md` contiene la versione di riferimento da copiare al root del repo.
-
-> 🔵 Claude Code: la versione di riferimento è in `solution/.claude/skills/endpoint-creator/SKILL.md` (stesso contenuto), da copiare in `.claude/skills/endpoint-creator/SKILL.md` al root del repo.
+Se ti blocchi: `solution/.github/skills/endpoint-creator/SKILL.md` oppure 🔵 `solution/.claude/skills/endpoint-creator/SKILL.md` contengono la versione di riferimento da copiare nella root del repo.
 
 ➡️ Prossimo modulo: [`../M2-capacita/README.md`](../M2-capacita/README.md)

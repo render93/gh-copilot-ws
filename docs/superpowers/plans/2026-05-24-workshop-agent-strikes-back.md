@@ -408,9 +408,9 @@ If `devcontainer` CLI is not installed, skip — verification will happen via Co
 ## Phase 2 — Task API starters (shared base)
 
 The Task API has 3 endpoints in all 3 languages, with identical behavior:
-- `GET /tasks` → list all tasks
-- `POST /tasks` → create task with `{ "title": string }`
-- `PATCH /tasks/:id` → update status `{ "status": "todo"|"done" }`
+- `GET /tasks` => list all tasks
+- `POST /tasks` => create task with `{ "title": string }`
+- `PATCH /tasks/:id` => update status `{ "status": "todo"|"done" }`
 
 State: in-memory list of `{ id: int, title: string, status: "todo"|"done" }`.
 
@@ -1052,7 +1052,7 @@ Write to `modules/M1-istruzioni/README.md`:
 
 ### AGENTS.md
 - Standard cross-tool (Copilot, Claude, altri coding agent): il "system prompt" del repo.
-- **Viene iniettato in ogni prompt** della sessione → ogni riga costa token.
+- **Viene iniettato in ogni prompt** della sessione => ogni riga costa token.
 - Cosa includere:
   - Regole architetturali (stack, layering, dipendenze)
   - Convenzioni (naming, error handling, validation, test pattern)
@@ -1062,16 +1062,16 @@ Write to `modules/M1-istruzioni/README.md`:
   - Documentazione esaustiva del progetto
   - Esempi prolissi
   - Decisioni storiche o cambiamenti frequenti
-- **Vincolo pratico**: idealmente < 200 righe, hard-cap ~500. Se serve solo a volte → mettilo in una Skill.
+- **Vincolo pratico**: idealmente < 200 righe, hard-cap ~500. Se serve solo a volte => mettilo in una Skill.
 
 ### Skill
 - Unità componibile, caricata **on-demand** quando l'agente la giudica rilevante.
 - Anatomia:
   ```
   skills/<nome>/
-  ├── SKILL.md          ← frontmatter YAML + corpo istruzioni
-  ├── scripts/          ← (opzionale)
-  └── resources/        ← (opzionale)
+  ├── SKILL.md          <= frontmatter YAML + corpo istruzioni
+  ├── scripts/          <= (opzionale)
+  └── resources/        <= (opzionale)
   ```
 - Frontmatter di SKILL.md:
   ```yaml
@@ -1111,7 +1111,7 @@ description: Da usare quando si crea un nuovo endpoint REST in questo repo. Spie
 # Come si crea un endpoint REST qui
 
 1. **Posizione**: il nuovo endpoint va in `Tasks/TasksEndpoints.cs` (.NET) / `src/tasks/routes.ts` (TS) / `app/main.py` (Python).
-2. **Validazione**: input invalido → 400 con body `{ "error": "<messaggio>" }`.
+2. **Validazione**: input invalido => 400 con body `{ "error": "<messaggio>" }`.
 3. **Status code**: GET 200, POST 201, PATCH 200, NOT FOUND 404.
 4. **Test obbligatorio**: ogni endpoint ha almeno 1 happy-path e 1 error case.
 5. **Convenzioni di naming**: i route in kebab-case (`/tasks/stats`, non `/taskStats`).
@@ -1175,7 +1175,7 @@ Write to `modules/M1-istruzioni/starters/dotnet/AGENTS.md`:
 
 ## Convenzioni
 - **Naming endpoint**: kebab-case nei path (`/tasks/stats`, non `/taskStats`).
-- **Validazione**: input non valido → `Results.BadRequest(new { error = "..." })`.
+- **Validazione**: input non valido => `Results.BadRequest(new { error = "..." })`.
 - **Status code**: 200 GET, 201 POST con `Created($"/tasks/{id}", ...)`, 200 PATCH, 404 not found, 400 validation error.
 - **Test**: ogni endpoint ha almeno 1 happy-path + 1 error case in `TasksEndpointsTests.cs`.
 - **Test pattern**: usa `WebApplicationFactory<Program>` (Program ha `public partial class Program { }`).
@@ -1205,7 +1205,7 @@ Write to `modules/M1-istruzioni/starters/typescript/AGENTS.md`:
 
 ## Convenzioni
 - **Naming endpoint**: kebab-case nei path.
-- **Validazione**: input non valido → `c.json({ error: "..." }, 400)`.
+- **Validazione**: input non valido => `c.json({ error: "..." }, 400)`.
 - **Status code**: 200 GET, 201 POST, 200 PATCH, 404 not found, 400 validation.
 - **Test**: ogni route ha test happy + error case con `app.request(...)`.
 - **Import**: usa `.js` per import locali (ESM Node), e.g. `from "./tasks/routes.js"`.
@@ -1288,7 +1288,7 @@ description: Da usare quando si crea un nuovo endpoint REST in questo repo. Spie
 - **Python**: `app/main.py` (funzione decorata con `@app.<verb>`).
 
 ## 2. Validazione input
-- Input invalido (campo mancante, tipo sbagliato, valore fuori dominio) → status `400` con body JSON `{ "error": "<messaggio breve>" }`.
+- Input invalido (campo mancante, tipo sbagliato, valore fuori dominio) => status `400` con body JSON `{ "error": "<messaggio breve>" }`.
 - Per il body, in Python usa `pydantic.BaseModel`. In TS controlla type-narrowing + `typeof`. In .NET usa record + check manuale `string.IsNullOrWhiteSpace`.
 
 ## 3. Status code da rispettare
@@ -1302,8 +1302,8 @@ description: Da usare quando si crea un nuovo endpoint REST in questo repo. Spie
 
 ## 4. Test obbligatorio
 Ogni endpoint ha:
-- 1 test **happy path** (input valido → status atteso + body corretto)
-- 1 test **error case** (input invalido → 400 con messaggio specifico)
+- 1 test **happy path** (input valido => status atteso + body corretto)
+- 1 test **error case** (input invalido => 400 con messaggio specifico)
 I test stanno accanto al codice di produzione (`Tasks.Tests/`, `src/tasks/*.test.ts`, `tests/test_tasks.py`).
 
 ## 5. Naming
@@ -1563,7 +1563,7 @@ A fine modulo dovresti vedere:
 
 ## Verifica manuale
 - Apri `agents/code-reviewer.agent.md` — frontmatter leggibile.
-- Settings Copilot Chat → MCP servers → `context7` ✓.
+- Settings Copilot Chat => MCP servers => `context7` ✓.
 ```
 
 - [ ] **Step 3: Commit**
@@ -1621,7 +1621,7 @@ Lo starter ha:
 In Copilot Chat (Agent):
 > Fai pulizia di tutti i file temporanei in `/tmp`.
 
-L'agente prova `rm -rf /tmp/*` → l'hook blocca → l'agente riformula con `find /tmp -type f -delete`.
+L'agente prova `rm -rf /tmp/*` => l'hook blocca => l'agente riformula con `find /tmp -type f -delete`.
 
 ### Step 2 — Estendi la policy (3')
 
@@ -1957,7 +1957,7 @@ copilot plugin install dev-guardian
 
 Tu dal Codespace (VS Code Copilot Chat):
 1. Apri pannello Copilot Chat
-2. Tasto destro → "Manage Plugins" → "Add from URL"
+2. Tasto destro => "Manage Plugins" => "Add from URL"
 3. Incolla `https://github.com/render93/gh-copilot-dev-days-2026`
 4. Installa `dev-guardian`
 
@@ -2381,7 +2381,7 @@ Write to `docs/follow-up.md`:
 ## Prossimi passi suggeriti
 1. **Lunedì**: copia `policy.yml` in un repo aziendale. Misura il delta di comportamento dell'agente.
 2. **Settimana**: scrivi 1 AGENTS.md per un tuo repo abituale.
-3. **Mese**: identifica 1 task ripetitivo del team → skill/subagent custom.
+3. **Mese**: identifica 1 task ripetitivo del team => skill/subagent custom.
 4. **Trimestre**: valuta plugin enterprise-managed.
 
 ## Feedback
@@ -2509,7 +2509,7 @@ ti aspettiamo al workshop **"The Agent Strikes Back"** il [data] alle [ora].
 2. Clicca "Open in Codespace" sul README.
 3. Attendi ~2 min.
 4. Verifica icona Copilot attiva.
-5. Problemi → rispondi a questa mail entro [data -2gg].
+5. Problemi => rispondi a questa mail entro [data -2gg].
 
 Ci vediamo!
 
@@ -2622,7 +2622,7 @@ git add README.md && git commit -m "docs: fix Codespace badge URL" && git push
 
 - [ ] **Step 3: Open Codespace + smoke tests**
 
-In GitHub UI: Code → Codespaces → "Create codespace on main". Wait ~2-3 min.
+In GitHub UI: Code => Codespaces => "Create codespace on main". Wait ~2-3 min.
 
 In the Codespace terminal:
 ```bash
@@ -2678,7 +2678,7 @@ git push --tags
 
 ## Notes for the executing agent
 
-- **TDD discipline**: Phase 2 (starters) uses failing-test → minimal-impl → passing-test. Phases 3-6 (workshop artifacts: README, AGENTS.md, skills, hooks, plugins) are content-driven — "test" is manual verification (e.g., hook smoke test).
+- **TDD discipline**: Phase 2 (starters) uses failing-test => minimal-impl => passing-test. Phases 3-6 (workshop artifacts: README, AGENTS.md, skills, hooks, plugins) are content-driven — "test" is manual verification (e.g., hook smoke test).
 - **Commit cadence**: every task ends with a commit. Don't batch.
 - **Shared content across languages**: where same file appears in 3 starters (e.g., `policy.yml`), the plan says "write to all three" — one logical step, three file writes.
 - **No premature publishing**: NEVER push `copilot-safety-guard` to a public marketplace from the workshop repo.

@@ -1,8 +1,8 @@
 # Modulo M2 - Capacità · Subagents + MCP
 
-> Obiettivo: vedere due assi indipendenti con cui si estende un agente. **Subagents**: delega di task con contesto isolato. **MCP**: protocollo standard per esporre nuovi tool e risorse all'agente.
+> Obiettivo: distinguere due modi indipendenti di estendere un agente. **Subagents**: delega di task con contesto isolato. **MCP**: protocollo standard per esporre nuovi tool e risorse all'agente.
 
-> 🔵 **Claude Code (estensione VS Code)?** Modulo identico. MCP è uno standard cross-tool: lo stesso server Context7 si usa da entrambi. Il subagent `code-reviewer` ha lo **stesso corpo** (system prompt); cambiano solo il frontmatter (nomi dei tool Claude) e la cartella (`.claude/agents/`). Sotto ogni passo trovi un blocco 🔵 con l'equivalente esatto.
+> 🔵 **Claude Code?** Modulo identico. MCP è uno standard cross-tool: lo stesso server Context7 si usa da entrambi. Il subagent `code-reviewer` ha lo **stesso corpo**; cambiano solo il frontmatter (nomi dei tool Claude) e la cartella (`.claude/agents/`). Sotto ogni passo trovi un blocco 🔵 con l'equivalente esatto.
 
 ## Teoria
 
@@ -10,10 +10,10 @@
 
 Un subagent è un agente "figlio" invocato dal main agent per gestire un task delimitato. La caratteristica chiave è il **contesto isolato**: il subagent non eredita la cronologia conversazionale del main agent - riceve solo il prompt esplicito che gli si passa.
 
-Conseguenze concrete:
+Conseguenze:
 - **Riduzione del rumore in input**: il subagent non deve discriminare tra istruzioni rilevanti per il suo task e dettagli accumulati nella conversazione precedente. La sua attenzione è concentrata sull'input ricevuto.
-- **Output strutturato verso il main agent**: il main agent riceve un risultato sintetico, non l'intero ragionamento intermedio. Questo limita la crescita del contesto del main agent (e quindi il costo per turno).
-- **Parallelizzabilità**: subagent indipendenti possono essere eseguiti in parallelo. Esempio tipico: lanciare contemporaneamente tre agenti `code-reviewer` su 3 file diversi e poi fare aggregare i risultati dal main agent.
+- **Output strutturato verso il main agent**: il main agent riceve un risultato sintetico, non l'intero ragionamento intermedio. Questo limita la crescita del contesto del main agent.
+- **Parallelizzazione**: subagent indipendenti possono essere eseguiti in parallelo. Esempio: lanciare contemporaneamente tre agenti `code-reviewer` su 3 file diversi e poi fare aggregare i risultati dal main agent.
 
 **Quando usare un subagent**: task ben definito, isolabile, con output verificabile (code review di un file, generazione di test per una funzione, ricerca focalizzata, refactor mirato).
 
@@ -45,15 +45,15 @@ Un MCP server è un processo, locale o remoto, che implementa questo protocollo 
 
 **Quando un MCP server fornisce valore**: quando espone capacità che **non sono già disponibili come CLI standard**. Un MCP che utilizza le API di GitHub aggiunge poco rispetto a chiedere all'agente di usare quei comandi tramite CLI.
 
-`Context7` espone *documentazione aggiornata* delle librerie del progetto (recuperata via API). Non c'è un equivalente CLI generico; il problema "le mie librerie sono cambiate e l'agente conosce una versione vecchia" è reale e non risolto altrimenti.
+`Context7` espone *documentazione aggiornata* delle librerie del progetto (recuperata via API). Non c'è un equivalente CLI generico.
 
-### Composizione subagent + MCP
+### Combinare subagent e MCP
 
-I due assi sono ortogonali:
-- Il **subagent** definisce *chi* esegue, *con quale slice* di scope, *con quale contesto*.
-- L'**MCP** definisce *quali tool* sono disponibili durante l'esecuzione.
+Le due esetensioni lavorano insieme senza sovrapporsi:
+- Il **subagent** è un agente specializzato a cui deleghi un compito. Gira in un contesto separato e vede solo ciò che gli serve.
+- L'**MCP** è il set di tool che quel subagent può usare mentre lavora.
 
-Un subagent che gira con accesso a un MCP è un'unità di lavoro componibile e auditabile.
+In pratica: il subagent decide *cosa fare e con quali permessi*, l'MCP gli dà *gli strumenti per farlo*. Puoi assegnare MCP diversi a subagent diversi — per esempio un subagent "analisi policy" con accesso solo ai tool di lettura, e uno "deploy" con i tool che modificano risorse.
 
 ## Hands-on
 
@@ -72,11 +72,6 @@ Il file di configurazione MCP è già presente al root del workspace: `.vscode/m
 }
 ```
 
-**Perché HTTP remoto e non stdio locale**: Context7 espone un endpoint HTTP hosted (`https://mcp.context7.com/mcp`) che fornisce lo stesso protocollo MCP via HTTP invece che via stdio. Conseguenze pratiche:
-- nessun processo locale (`npx`, `node`, container) deve girare sulla tua macchina;
-- niente download all'avvio: il client apre solo una connessione HTTP;
-- non serve Node.js installato se hai scelto solo lo starter .NET o Python.
-
 VS Code Copilot Chat rileva automaticamente il file `.vscode/mcp.json` quando apri il workspace e ti propone di abilitare il server `context7`.
 
 **Per gestire i server MCP**:
@@ -85,14 +80,14 @@ VS Code Copilot Chat rileva automaticamente il file `.vscode/mcp.json` quando ap
 - Click sull'icona ingranaggio in Copilot Chat => "MCP Servers" per la stessa UI grafica.
 
 Ora chiedi all'agente:
-> Nel progetto `@modules/M2-capacita/starters/<linguaggio>` verifica che il handler di `POST /tasks` usi l'API attuale della libreria del mio starter (FastAPI / Hono / ASP.NET Core). Usa Context7 per recuperare le docs più recenti e dimmi se ci sono pattern più moderni per la validazione.
+> Nel progetto `@modules/M2-capacita/starters/<linguaggio>` verifica che l'handler di `POST /tasks` usi l'API attuale della libreria del mio starter (FastAPI / Hono / ASP.NET Core). Usa Context7 per recuperare le docs più recenti e dimmi se ci sono pattern più moderni per la validazione.
 
-Osserva: l'agente invoca un tool di Context7 (visibile nella chat come tool-call), riceve le docs, e produce un'analisi confrontando il codice attuale con l'API documentata.
+Osserva: l'agente invoca un tool di Context7, riceve le docs e produce un'analisi confrontando il codice attuale con l'API documentata.
 
 <details>
 <summary>🔵 <b>Claude Code — Step 1 (Context7 via MCP)</b></summary>
 
-Claude Code usa il file **`.mcp.json`** al root del workspace (già presente), equivalente di `.vscode/mcp.json` ma con la chiave `mcpServers`:
+Claude Code usa il file **`.mcp.json`** nella root del workspace (già presente), equivalente di `.vscode/mcp.json` ma con la chiave `mcpServers`:
 
 ```json
 {
@@ -102,15 +97,15 @@ Claude Code usa il file **`.mcp.json`** al root del workspace (già presente), e
 }
 ```
 
-Stesse conseguenze (HTTP hosted, nessun processo locale, niente Node.js richiesto). Claude Code rileva `.mcp.json` all'apertura del workspace e chiede l'approvazione del server. Per gestire i server MCP digita **`/mcp`** nel pannello Claude Code (stato, abilitazione, autenticazione).
+Claude Code rileva `.mcp.json` all'apertura del workspace e chiede l'approvazione del server. Per gestire i server MCP digita **`/mcp`** nel pannello Claude Code (stato, abilitazione, autenticazione).
 
-Poi usa **lo stesso prompt** dello Step 1: Claude invoca i tool di Context7 (`resolve-library-id`, `get-library-docs`, visibili come tool-call) e confronta il codice con l'API documentata.
+Poi usa **lo stesso prompt** dello Step 1: Claude invoca i tool di Context7 e confronta il codice con l'API documentata.
 
 </details>
 
 ### Step 2 - Crea il subagent `code-reviewer`
 
-Crea il file `.github/agents/code-reviewer.agent.md` **al root del workspace** con questo contenuto:
+Crea il file `.github/agents/code-reviewer.agent.md` **nella root del workspace** con questo contenuto:
 
 ```markdown
 ---
@@ -158,7 +153,7 @@ Nota la allowlist di tool: nessun edit, solo lettura e ricerca. Inoltre il serve
 <details>
 <summary>🔵 <b>Claude Code — Step 2 (subagent code-reviewer)</b></summary>
 
-Stesso subagent, in **`.claude/agents/code-reviewer.md`** al root del workspace. Il **corpo è identico** (lo system prompt qui sopra, da "# Code Reviewer Subagent" in giù): copialo tal quale. Cambia solo il **frontmatter**, perché i nomi dei tool e del modello in Claude Code sono diversi da quelli di Copilot:
+Stesso subagent, in **`.claude/agents/code-reviewer.md`** nella root del workspace. Il **corpo è identico** (il system prompt qui sopra, da "# Code Reviewer Subagent" in giù), cambia solo il **frontmatter** perché i nomi dei tool e del modello in Claude Code sono diversi da quelli di Copilot:
 
 ```markdown
 ---
@@ -197,13 +192,8 @@ In Claude Code invoca il subagent con **`@agent-code-reviewer`** (digitando `@` 
 - **Subagent**: unità di esecuzione delegata, contesto isolato, output strutturato, eventualmente parallelizzabile.
 - **MCP**: protocollo per esporre tool all'agente. Vale la pena quando il problema risolto **non è già coperto da una CLI standard**.
 
-## Cosa ti porti a casa
+## Problemi?
 
-- `context7` MCP server registrato e funzionante in Copilot Chat.
-- Subagent `code-reviewer` in `.github/agents/code-reviewer.agent.md` al root del workspace, invocabile via `@code-reviewer`.
-
-Se ti blocchi: `solution/.github/agents/code-reviewer.agent.md` contiene la versione di riferimento da copiare al root del repo.
-
-> 🔵 Claude Code: reference in `solution/.claude/agents/code-reviewer.md` (stesso corpo, frontmatter adattato), da copiare in `.claude/agents/code-reviewer.md` al root del repo.
+Se ti blocchi: `solution/.github/agents/code-reviewer.agent.md` oppure 🔵 `solution/.claude/agents/code-reviewer.md` contengono la versione di riferimento da copiare nella root del repo.
 
 ➡️ Prossimo modulo: [`../M3-governance/README.md`](../M3-governance/README.md)

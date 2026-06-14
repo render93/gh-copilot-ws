@@ -1,14 +1,14 @@
 # Modulo M4 - Distribuzione · Plugins & Marketplace
 
-> Obiettivo: trasformare gli artefatti agentic privati (skill, subagent, hook, configurazioni di MCP server) in **unità distribuibili e installabili** condivisibili col team o l'organizzazione.
+> Obiettivo: trasformare le estensioni (skill, subagent, hook, configurazioni di MCP server) in **unità distribuibili e installabili** condivisibili col team o l'organizzazione.
 
-> 🔵 **Claude Code (estensione VS Code)?** Modulo identico nei concetti: plugin = bundle versionato, marketplace = registry Git. Differenze tecniche: il manifest è `.claude-plugin/plugin.json` (i componenti `skills/`, `agents/`, `hooks/hooks.json` sono **auto-scoperti** dalle cartelle convenzionali), il marketplace è `.claude-plugin/marketplace.json`, e l'installazione usa i comandi `/plugin marketplace add` e `/plugin install`. Sotto ogni passo trovi un blocco 🔵. Riferimenti in `modules/M4-distribuzione/solution/.claude/` e `modules/M4-distribuzione/solution/plugins/claude-safety-guard/`.
+> 🔵 **Claude Code?** Modulo identico nei concetti: plugin = bundle versionato, marketplace = registry Git. Differenze tecniche: il manifest è `.claude-plugin/plugin.json` (i componenti `skills/`, `agents/`, `hooks/hooks.json` sono **auto-scoperti** dalle cartelle convenzionali), il marketplace è `.claude-plugin/marketplace.json`, e l'installazione usa i comandi `/plugin marketplace add` e `/plugin install`. Sotto ogni passo trovi un blocco 🔵. Riferimenti in `modules/M4-distribuzione/solution/.claude/` e `modules/M4-distribuzione/solution/plugins/claude-safety-guard/`.
 
 ## Teoria
 
 ### Plugin
 
-Un plugin è un **bundle versionato** che raccoglie più componenti agentici in un singolo artefatto con un manifest dichiarativo. Un plugin può contenere:
+Un plugin è un **bundle versionato** che raccoglie più estensioni in un singolo artefatto con un manifest dichiarativo. Un plugin può contenere:
 
 - una o più **skill**
 - uno o più **custom agent (subagent)**
@@ -19,11 +19,11 @@ Il file manifest chiamato `plugin.json` elenca i componenti e i loro file path r
 
 ### Marketplace
 
-Un **marketplace** è un registry di plugin pubblicato come repository Git accessibile (pubblico o privato). Contiene un indice di plugin e funge da source per l'installazione. Concettualmente è analogo a un package registry (npm, NuGet, PyPI), ma per artefatti agentici invece che per librerie di codice.
+Un **marketplace** è un registry di plugin pubblicato come repository Git accessibile (pubblico o privato). Contiene un insieme di plugin e funge da source per l'installazione. Concettualmente è analogo a un package registry (npm, NuGet, PyPI), ma per artefatti agentici invece che per librerie di codice.
 
 ### Portabilità del bundle
 
-Lo stesso plugin può essere utilizzato da differenti coding agent:
+Lo stesso plugin può essere utilizzato da differenti coding agent, ad esempio:
 - **Copilot CLI** (terminal),
 - **Copilot Chat in VS Code** (IDE),
 - **Claude Code**.
@@ -34,9 +34,7 @@ Lo stesso plugin può essere utilizzato da differenti coding agent:
 
 Useremo il marketplace [render93/gh-copilot-dev-days-2026](https://github.com/render93/gh-copilot-dev-days-2026) (nome interno `dev-days-2026-marketplace`), che contiene 3 plugin showcase (`pr-helper`, `dev-guardian`, `story-crafter`).
 
-È un **marketplace** - un registry che indicizza più plugin, non un singolo plugin - quindi il flusso è in due fasi: prima lo registri come source, poi sfogli e installi i singoli plugin.
-
-> Il supporto ai plugin è governato dalla setting `chat.plugins.enabled`, gestita a livello **organizzazione**. Se non vedi la sezione Plugins o i comandi `Chat: …`, chiedi al tuo amministratore di abilitarla.
+> Il supporto ai plugin è governato dal setting `chat.plugins.enabled`, gestito a livello **organizzazione**. Se non vedi la sezione Plugins o i comandi `Chat: …`, chiedi al tuo amministratore di abilitarla.
 
 **1a - Registra il marketplace**
 
@@ -66,13 +64,11 @@ Il comando `/plugin` apre il gestore: vai su **Marketplaces**, sfoglia i plugin 
 
 ### Step 2 - Ispeziona dev-guardian
 
-Prima di costruire il tuo, guarda com'è fatto un plugin reale. Apri la cartella del plugin [`dev-guardian`](https://github.com/render93/gh-copilot-dev-days-2026/tree/main/plugins/dev-guardian) e osserva l'anatomia del bundle:
+Prima di costruire il tuo, guarda com'è fatto un plugin reale. Apri la cartella del plugin [`dev-guardian`](https://github.com/render93/gh-copilot-dev-days-2026/tree/main/plugins/dev-guardian) e osserva la composizione del bundle:
 
 - `plugin.json` — il manifest: dichiara `skills`, `agents`, `hooks` (e `mcpServers`) puntando alle rispettive directory/file.
 - `hooks.json` — mappa un evento (es. `preToolUse`) allo script da eseguire.
 - `skills/`, `agents/`, `scripts/` — i componenti veri e propri.
-
-È la stessa struttura che ricreerai nello Step 3 per il tuo plugin.
 
 <details>
 <summary>🔵 <b>Claude Code — Step 2 (ispeziona un plugin reale)</b></summary>
@@ -82,13 +78,11 @@ Stesso obiettivo: guardare l'anatomia di un plugin reale prima di costruirne uno
 - `hooks/hooks.json` — mappa un evento (es. `PreToolUse`) allo script.
 - `skills/`, `agents/`, `scripts/` — i componenti, **auto-scoperti** dalle cartelle convenzionali (non serve elencarli nel manifest).
 
-È la stessa struttura che ricreerai nello Step 3.
-
 </details>
 
 ### Step 3 - Crea il tuo plugin
 
-Combina gli artefatti dei moduli precedenti in un plugin coerente: `copilot-safety-guard`. Crea un nuovo repository con questa struttura **nella root del workspace** (`<repo-root>/plugins/copilot-safety-guard/`):
+Combina gli artefatti dei moduli precedenti in un plugin coerente: `copilot-safety-guard`. Crea un nuovo repository con questa struttura:
 
 ```
 plugins/copilot-safety-guard/
@@ -226,9 +220,10 @@ Un plugin diventa installabile quando vive in un repository che fa da **marketpl
 
 `pluginRoot` indica la cartella che contiene i plugin (`./plugins`); `source` è il nome della sottocartella del plugin sotto `pluginRoot`. Poi:
 
-1. `git add . && git commit && git push` su un repository Git accessibile. Il tuo fork del workshop va benissimo: ha già `plugins/copilot-safety-guard/` al root.
-2. In un altro workspace (o un collega) aggiunge l'URL del tuo repo a `chat.plugins.marketplaces`, esattamente come in **1a** con il marketplace di esempio.
-3. `@agentPlugins` => compare `copilot-safety-guard` => **Install**.
+1. crea un nuovo repository Git
+2. `git add . && git commit && git push` del tuo plugin (con `plugins/copilot-safety-guard/` e `.github/plugin/marketplace.json` al root).
+3. Aggiungi l'URL del tuo repo a `chat.plugins.marketplaces`
+4. `@agentPlugins` => compare `copilot-safety-guard` => **Install**.
 
 Questo chiude il cerchio: hai creato un plugin (Step 3) e l'hai reso installabile da un marketplace, come `dev-guardian` nello Step 1.
 
@@ -255,8 +250,10 @@ Per Claude Code l'indice del marketplace è **`.claude-plugin/marketplace.json`*
 
 `metadata.pluginRoot` (`./plugins`) viene anteposto ai `source` relativi, quindi `source: "claude-safety-guard"` risolve a `./plugins/claude-safety-guard`. Poi:
 
-1. `git add . && git commit && git push` sul tuo fork (ha già `plugins/claude-safety-guard/` e `.claude-plugin/marketplace.json` al root).
-2. Tu (o un collega) in un altro workspace: `/plugin marketplace add <url-del-tuo-repo>` poi `/plugin install claude-safety-guard@my-workshop-marketplace`.
+1. crea un nuovo repository Git
+2. `git add . && git commit && git push` del tuo plugin (con `plugins/claude-safety-guard/` e `.claude-plugin/marketplace.json` al root).
+3. `/plugin marketplace add <url-del-tuo-repo>`
+4. `/plugin` => Marketplaces => il tuo marketplace => **Install** su `claude-safety-guard`.
 
 Chiude il cerchio esattamente come la versione Copilot. Reference: `modules/M4-distribuzione/solution/.claude-plugin/marketplace.json`.
 
@@ -267,11 +264,7 @@ Chiude il cerchio esattamente come la versione Copilot. Reference: `modules/M4-d
 - Plugin = insieme di estensioni per agenti AI (skill, agent, hook, MCP server) raccolti in un bundle versionato con manifest dichiarativo.
 - Marketplace = registry da cui i plugin si installano (pubblico, privato o enterprise-managed).
 
-## Cosa ti porti a casa
-
-- `dev-guardian` installato e ispezionato come reference completo.
-- Plugin `plugins/copilot-safety-guard/` al root del workspace, con `plugin.json`, `hooks.json` e `policy.yml`.
-- Marketplace pubblicato via `.github/plugin/marketplace.json` e plugin installabile con `@agentPlugins`.
+## Problemi?
 
 Se ti blocchi: `solution/plugins/copilot-safety-guard/` contiene il bundle plugin completo e `solution/.github/plugin/marketplace.json` l'indice del marketplace, da copiare al root del repo.
 

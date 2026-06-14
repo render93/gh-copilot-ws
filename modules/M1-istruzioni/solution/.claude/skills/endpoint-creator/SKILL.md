@@ -11,7 +11,7 @@ description: Use when creating a new REST endpoint in this repo. Covers validati
 - Python: `app/main.py` (function decorated with `@app.<verb>`)
 
 ## 2. Input validation
-- Invalid input → 400 with body `{ "error": "<short message>" }`
+- Invalid input => 400 with body `{ "error": "<short message>" }`
 - Python: pydantic.BaseModel; TS: type-narrowing; .NET: record + manual checks
 
 ## 3. Status codes
