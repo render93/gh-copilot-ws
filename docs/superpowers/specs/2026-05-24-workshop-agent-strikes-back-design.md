@@ -256,14 +256,14 @@ Configurare un `PreToolUse` hook che intercetta le invocazioni di Bash/Edit/Writ
 - Esplorare cosa fornisce `dev-guardian` (3 skill + agent `test-writer` + MCP filesystem + 2 hook `postToolUse`/`sessionStart`). Bridge a M3: *"l'hook che hai costruito tu segue lo stesso pattern di questi"*.
 
 **Step 2 — Impacchettare il proprio plugin** *(4')*
-- Prendere skill (M1) + subagent (M2) + hook safety (M3) e impacchettarli come **plugin locale** in `plugins/copilot-safety-guard/`.
+- Prendere skill (M1) + subagent (M2) + hook safety (M3) e impacchettarli come plugin `copilot-safety-guard` **in un repo marketplace separato** (la copia sorgente→plugin è l'atto di publish; sorgente nel workspace, bundle nel repo marketplace).
 - Creare manifest (`plugin.json` o equivalente) che lista i 3 componenti.
 - **Punto pedagogico**: questo è un asset tematico vendibile (*"un plugin che chiunque vorrebbe nel repo aziendale: skill compliance + reviewer + safety hook"*) — non un mix eterogeneo.
 - Si vede *come* si pubblicherebbe (`copilot plugin marketplace add <url-del-tuo-fork>`). Non si pubblica davvero per non spammare i marketplace pubblici.
 
 **Wrap (3')**: da artefatto privato => artefatto distribuibile. Plugin = unit of distribution dell'agentic dev.
 
-**Output portabile**: `plugins/copilot-safety-guard/` con manifest e tutti i componenti, pronto in teoria da pubblicare.
+**Output portabile**: un repo marketplace separato con `plugins/copilot-safety-guard/` (manifest + componenti) e `.github/plugin/marketplace.json`, installabile come quello dello Step 1.
 
 ---
 

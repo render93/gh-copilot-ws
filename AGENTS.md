@@ -11,7 +11,7 @@ Il workshop guida il partecipante a creare progressivamente, **a livello del roo
 - `.github/agents/code-reviewer.agent.md` (creata in M2)
 - `.github/agents/dba.agent.md` + `.github/hooks/subagent-start.json` + `.copilot/hooks/subagent-start.{sh,ps1}` + `.copilot/context/db-schema.sql` (creati in M3 - iniezione di contesto via SubagentStart)
 - `.github/hooks/pre-tool-use.json` + `.copilot/policy.yml` + `.copilot/hooks/pre-tool-use.{sh,ps1}` (M3, appendice - policy enforcement via PreToolUse)
-- `plugins/copilot-safety-guard/` (creato in M4 - impacchetta un sottoinsieme curato: skill + code-reviewer + safety hook)
+- `plugins/copilot-safety-guard/` + `.github/plugin/marketplace.json` (creati in M4 - il plugin impacchetta un sottoinsieme curato (skill + code-reviewer + safety hook) e viene pubblicato in un **repo marketplace separato**, non nel workspace)
 
 ## Stack per linguaggio
 
@@ -65,6 +65,7 @@ Il workshop guida il partecipante a creare progressivamente, **a livello del roo
 - `modules/Mn/starters/<lang>/` - codice di partenza per il linguaggio scelto.
 - `modules/Mn/solution/<lang>/` - codice allo stato finale del modulo.
 - `modules/Mn/solution/.github/`, `modules/Mn/solution/.copilot/` - customizations cumulative (skill, agent, hook, policy) come reference da copiare al root del repo se ci si blocca.
+- `modules/M4-distribuzione/solution/` - eccezione: è la fotografia di un **repo marketplace separato** (solo `plugins/` + i due `marketplace.json`), non un workspace. I sorgenti dei bundle M4 sono in `modules/M3-governance/solution/`.
 - `docs/timing-conduzione.md` - runbook minuto per minuto per gli speaker.
 - `docs/glossario.md` - termini agentic spiegati.
 - `docs/follow-up.md` - risorse post-workshop.

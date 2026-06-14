@@ -80,22 +80,25 @@ Stesso obiettivo: guardare l'anatomia di un plugin reale prima di costruirne uno
 
 </details>
 
-### Step 3 - Crea il tuo plugin
+### Step 3 - Crea il tuo repo-marketplace e assembla il plugin
 
-Combina gli artefatti dei moduli precedenti in un plugin coerente: `copilot-safety-guard`. Crea un nuovo repository con questa struttura:
+Crea un **nuovo repository** (separato dal workspace del workshop) e al suo interno assembla il plugin `copilot-safety-guard`, copiando il sottoinsieme curato dal tuo workspace:
 
 ```
-plugins/copilot-safety-guard/
-├── plugin.json                         (manifest del bundle)
-├── hooks.json                          (registra l'hook preToolUse => script)
-├── policy.yml                          (regole di blocco lette dagli script hook - copiata da .copilot/policy.yml)
-├── skills/
-│   └── endpoint-creator/SKILL.md       (copiata da .github/skills/endpoint-creator/SKILL.md)
-├── agents/
-│   └── code-reviewer.agent.md          (copiato da .github/agents/code-reviewer.agent.md)
-└── scripts/
-    ├── pre-tool-use.sh                 (copiato da .copilot/hooks/pre-tool-use.sh)
-    └── pre-tool-use.ps1                (copiato da .copilot/hooks/pre-tool-use.ps1)
+<nuovo-repo-marketplace>/
+├── .github/plugin/marketplace.json         (indice del marketplace - aggiunto allo Step 4)
+└── plugins/
+    └── copilot-safety-guard/
+        ├── plugin.json                      (manifest del bundle, vedi sotto)
+        ├── hooks.json                       (registra l'hook preToolUse, vedi sotto)
+        ├── policy.yml                       (regole di blocco - copiata dal workspace: .copilot/policy.yml)
+        ├── skills/
+        │   └── endpoint-creator/SKILL.md    (copiata dal workspace: .github/skills/endpoint-creator/SKILL.md)
+        ├── agents/
+        │   └── code-reviewer.agent.md       (copiato dal workspace: .github/agents/code-reviewer.agent.md)
+        └── scripts/
+            ├── pre-tool-use.sh              (copiato dal workspace: .copilot/hooks/pre-tool-use.sh)
+            └── pre-tool-use.ps1             (copiato dal workspace: .copilot/hooks/pre-tool-use.ps1)
 ```
 
 Il manifest `plugins/copilot-safety-guard/plugin.json` dichiara i componenti come **campi top-level**: `skills` e `agents` puntano alle rispettive **directory**, mentre `hooks` punta al file di configurazione `hooks.json`.
@@ -142,7 +145,7 @@ Il manifest quindi non punta direttamente allo script: dichiara `"hooks": "hooks
 <details>
 <summary>🔵 <b>Claude Code — Step 3 (crea il tuo plugin)</b></summary>
 
-Stesso bundle, struttura Claude. Crea `plugins/claude-safety-guard/` al root del workspace:
+Stesso bundle, struttura Claude. Crea `plugins/claude-safety-guard/` nel tuo repo-marketplace separato (stesso repo dello Step 3 Copilot, struttura Claude):
 
 ```
 plugins/claude-safety-guard/
@@ -150,11 +153,11 @@ plugins/claude-safety-guard/
 │   └── plugin.json            (manifest: solo metadati — i componenti sono auto-scoperti)
 ├── hooks/
 │   └── hooks.json             (registra l'hook PreToolUse => script)
-├── policy.yml                 (regole di blocco, copiata da .claude/policy.yml)
+├── policy.yml                 (regole di blocco, copiata dal workspace: .claude/policy.yml)
 ├── skills/
-│   └── endpoint-creator/SKILL.md   (copiata da .claude/skills/...)
+│   └── endpoint-creator/SKILL.md   (copiata dal workspace: .claude/skills/...)
 ├── agents/
-│   └── code-reviewer.md        (copiato da .claude/agents/code-reviewer.md)
+│   └── code-reviewer.md        (copiato dal workspace: .claude/agents/code-reviewer.md)
 └── scripts/
     ├── pre-tool-use.sh         (versione Claude: tool_name/tool_input, exit 2)
     └── pre-tool-use.ps1
@@ -194,9 +197,9 @@ Come per Copilot, lo script legge `policy.yml` (risolto come `../policy.yml` ris
 
 </details>
 
-### Step 4 - Pubblica il tuo plugin
+### Step 4 - Pubblica e installa
 
-Un plugin diventa installabile quando vive in un repository che fa da **marketplace**. Serve un file indice `.github/plugin/marketplace.json` che elenca i plugin del repo:
+Il tuo repo-marketplace diventa installabile aggiungendo l'indice `.github/plugin/marketplace.json` che elenca i plugin del repo:
 
 ```json
 {
@@ -220,12 +223,11 @@ Un plugin diventa installabile quando vive in un repository che fa da **marketpl
 
 `pluginRoot` indica la cartella che contiene i plugin (`./plugins`); `source` è il nome della sottocartella del plugin sotto `pluginRoot`. Poi:
 
-1. crea un nuovo repository Git
-2. `git add . && git commit && git push` del tuo plugin (con `plugins/copilot-safety-guard/` e `.github/plugin/marketplace.json` al root).
-3. Aggiungi l'URL del tuo repo a `chat.plugins.marketplaces`
-4. `@agentPlugins` => compare `copilot-safety-guard` => **Install**.
+1. `git init && git add . && git commit && git push` del repo-marketplace su un nuovo repository GitHub (con `plugins/copilot-safety-guard/` e `.github/plugin/marketplace.json` al root del repo).
+2. Aggiungi l'URL del tuo repo a `chat.plugins.marketplaces`.
+3. `@agentPlugins` => compare `copilot-safety-guard` => **Install**.
 
-Questo chiude il cerchio: hai creato un plugin (Step 3) e l'hai reso installabile da un marketplace, come `dev-guardian` nello Step 1.
+Questo chiude il cerchio: la copia che hai fatto vive in un **repo separato** dal workspace (niente sorgente e plugin nello stesso albero), e da lì è installabile esattamente come `dev-guardian` nello Step 1.
 
 <details>
 <summary>🔵 <b>Claude Code — Step 4 (pubblica il tuo plugin)</b></summary>

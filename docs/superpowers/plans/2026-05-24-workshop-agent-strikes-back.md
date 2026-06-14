@@ -1919,6 +1919,8 @@ git commit -m "feat(M3): solution with extended policy and custom block message"
 
 ## Phase 6 — Module M4 "Distribuzione" (Plugins & Marketplace)
 
+> ⚠️ Struttura superata: M4 è stato refactorato in `docs/superpowers/specs/2026-06-14-m4-dedup-marketplace-repo-design.md` (la solution di M4 è ora un repo marketplace separato, senza app code né customization co-locate). I task qui sotto riflettono il build originale.
+
 ### Task 6.1: M4 README
 
 **Files:**
